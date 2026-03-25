@@ -19,7 +19,7 @@ jobs:
         with:
           bun-version: latest
 
-      - name: 📦 Install Dependencies
+      - name: 📦 Install Root Dependencies
         run: |
           bun install
 
@@ -28,10 +28,11 @@ jobs:
           cd packages/opencode
           bun install
 
-      - name: 📦 Install App Dependencies
+      - name: 📦 Install App Dependencies & Build
         run: |
           cd packages/app
           bun install
+          bun run build
 
       - name: 🚇 Install Bore
         run: |
@@ -40,18 +41,12 @@ jobs:
           sudo mv bore /usr/local/bin/
           rm bore.tar.gz
 
-      - name: 🔧 Start Backend Server
+      - name: 🚀 Start Server
         run: |
           cd packages/opencode
-          bun run --conditions=browser ./src/index.ts serve --port 4096 &
+          bun src/index.ts serve --port 7860 --hostname 0.0.0.0 &
           sleep 10
-
-      - name: 🎨 Start App Dev Server
-        run: |
-          cd packages/app
-          bun dev -- --port 4444 &
-          sleep 15
 
       - name: 🌐 Start Bore Tunnel
         run: |
-          bore local 4444 --to bore.pub
+          bore local 7860 --to bore.pub
