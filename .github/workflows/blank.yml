@@ -1,4 +1,4 @@
-name: Live Test Feature Branch via Bore
+name: Quick Live Test via Bore
 
 on:
   workflow_dispatch:
@@ -8,11 +8,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout OpencodeAi (Branch: feature/personal-settings)
+      - name: 📥 Checkout OpencodeAi Repository
         uses: actions/checkout@v4
         with:
           repository: badman99dev/OpencodeAi
-          ref: feature/personal-settings  # यहाँ हमने आपकी स्पेसिफिक ब्रांच सेट कर दी है
+          ref: feature/personal-settings # यहाँ हमने आपकी स्पेसिफिक ब्रांच सेट कर दी है
 
       - name: 🛠️ Install Bun
         uses: oven-sh/setup-bun@v1
