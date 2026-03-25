@@ -1,10 +1,10 @@
-name: Quick Live Test
+name: Local Test with Bore
 
 on:
   workflow_dispatch:
 
 jobs:
-  run-and-expose:
+  test:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,19 +19,17 @@ jobs:
         with:
           bun-version: latest
 
-      - name: 📦 Install Root Dependencies
+      - name: 📦 Install Dependencies
         run: |
           bun install
-
-      - name: 📦 Install OpenCode Dependencies
-        run: |
           cd packages/opencode
           bun install
+          cd ../app
+          bun install
 
-      - name: 📦 Install App Dependencies & Build
+      - name: 🏗️ Build App
         run: |
           cd packages/app
-          bun install
           bun run build
 
       - name: 🚇 Install Bore
@@ -41,11 +39,11 @@ jobs:
           sudo mv bore /usr/local/bin/
           rm bore.tar.gz
 
-      - name: 🚀 Start Server
+      - name: 🚀 Start Server (Frontend + Backend)
         run: |
           cd packages/opencode
-          bun src/index.ts serve --port 7860 --hostname 0.0.0.0 &
-          sleep 10
+          bun src/index.ts serve --port 7860 &
+          sleep 15
 
       - name: 🌐 Start Bore Tunnel
         run: |
