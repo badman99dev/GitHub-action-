@@ -22,16 +22,8 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           bun install
-
-      - name: 📦 Install OpenCode Dependencies
-        run: |
-          cd packages/opencode
-          bun install
-
-      - name: 📦 Install App Dependencies
-        run: |
-          cd packages/app
-          bun install
+          cd packages/opencode && bun install
+          cd ../app && bun install
 
       - name: 🚇 Install Bore
         run: |
@@ -40,18 +32,36 @@ jobs:
           sudo mv bore /usr/local/bin/
           rm bore.tar.gz
 
-      - name: 🔧 Start Backend Server
+      - name: 🚀 Start Everything & Generate Live URLs
         run: |
+          # 1. Backend स्टार्ट करें (Background में)
           cd packages/opencode
           bun run --conditions=browser ./src/index.ts serve --port 4096 &
-          sleep 10
-
-      - name: 🎨 Start App Dev Server
-        run: |
-          cd packages/app
+          
+          # 2. Frontend स्टार्ट करें (Background में)
+          cd ../app
           bun dev -- --port 4444 &
+          
+          echo "⏳ Waiting for servers to start..."
           sleep 15
-
-      - name: 🌐 Start Bore Tunnel
-        run: |
-          bore local 4444 --to bore.pub
+          
+          # 3. Backend के लिए Bore टनल (Background में)
+          bore local 4096 --to bore.pub > /tmp/backend_bore.log 2>&1 &
+          
+          # 4. Frontend के लिए Bore टनल (Background में)
+          bore local 4444 --to bore.pub > /tmp/frontend_bore.log 2>&1 &
+          
+          sleep 5
+          
+          # 5. दोनों के Live URLs निकालें
+          FRONTEND_URL=$(grep -o 'bore.pub:[0-9]*' /tmp/frontend_bore.log | head -n 1)
+          BACKEND_URL=$(grep -o 'bore.pub:[0-9]*' /tmp/backend_bore.log | head -n 1)
+          
+          echo "====================================================="
+          echo "🌐 FRONTEND APP URL: http://$FRONTEND_URL"
+          echo "🔧 BACKEND SERVER URL: http://$BACKEND_URL"
+          echo "====================================================="
+          echo "👉 ध्यान दें: ऐप खोलने के बाद, 'Add server' में जाकर ये URL डालें: http://$BACKEND_URL"
+          
+          # 6. Action को बंद होने से रोकने के लिए अनंत लूप (जब तक आप खुद बंद न करें)
+          wait
