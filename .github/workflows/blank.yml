@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout Repository
+      - name: 📥 Checkout
         uses: actions/checkout@v4
         with:
           repository: badman99dev/OpencodeAi
@@ -24,27 +24,22 @@ jobs:
           bun install
           cd packages/opencode
           bun install
+          cd ../packages/app
+          bun install
 
-      - name: 🏗️ Build App
-        run: |
-          cd packages/app
-          bun run build
-
-      - name: 🚀 Start Server
-        env:
-          OPENCODE_SERVER_AUTH: false
-        run: |
-          git config --global user.email "test@example.com"
-          git config --global user.name "Test"
-          
-          cd packages/opencode
-          bun src/index.ts web --port 7860 --hostname 0.0.0.0 &
-          
-          sleep 15
-
-      - name: 🚇 Start Bore Tunnel
+      - name: 🚇 Install Bore
         run: |
           wget -qO bore.tar.gz https://github.com/ekzhang/bore/releases/download/v0.5.1/bore-v0.5.1-x86_64-unknown-linux-musl.tar.gz
           tar -xzf bore.tar.gz
           sudo mv bore /usr/local/bin/
-          bore local 7860 --to bore.pub
+          rm bore.tar.gz
+
+      - name: 🚀 Start App Dev Server
+        run: |
+          cd packages/app
+          bun dev -- --port 4444 &
+          sleep 15
+
+      - name: 🌐 Start Bore Tunnel
+        run: |
+          bore local 4444 --to bore.pub
