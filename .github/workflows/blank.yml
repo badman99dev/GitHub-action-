@@ -22,9 +22,15 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           bun install
+
+      - name: 📦 Install OpenCode Dependencies
+        run: |
           cd packages/opencode
           bun install
-          cd ../packages/app
+
+      - name: 📦 Install App Dependencies
+        run: |
+          cd packages/app
           bun install
 
       - name: 🚇 Install Bore
@@ -46,6 +52,6 @@ jobs:
           bun dev -- --port 4444 &
           sleep 15
 
-      - name: 🌐 Start Bore Tunnel (Frontend)
+      - name: 🌐 Start Bore Tunnel
         run: |
           bore local 4444 --to bore.pub
